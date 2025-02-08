@@ -1,0 +1,7 @@
+pydantic-ai-slim[openai, graph]
+fastapi
+uvicorn
+pydantic-settings
+logfire[sqlite3]
+rich
+python-multipart
