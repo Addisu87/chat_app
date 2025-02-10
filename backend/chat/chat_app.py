@@ -1,9 +1,4 @@
-from __future__ import annotations as _annotations
-
 import logfire
-from chat.core.config import settings
-from chat.db.base import Database
-from chat.schemas.chat_messge import ChatMessage
 from fastapi import Request
 from pydantic_ai import Agent
 from pydantic_ai.exceptions import UnexpectedModelBehavior
@@ -15,6 +10,10 @@ from pydantic_ai.messages import (
     UserPromptPart,
 )
 from pydantic_ai.models.openai import OpenAIModel
+
+from chat.core.config import settings
+from chat.db.base import Database
+from chat.schemas.chat_messge import ChatMessage
 
 # 'if token-present' means nothing will be sent(and the example will work)
 # if you don't have logfire configured

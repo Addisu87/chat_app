@@ -2,11 +2,12 @@ import json
 from datetime import datetime, timezone
 from typing import Annotated
 
-from chat.chat_app import agent, get_db, to_chat_message
-from chat.db.base import Database
 from fastapi import APIRouter, Depends, Form
 from fastapi.responses import Response, StreamingResponse
 from pydantic_ai.messages import ModelResponse, TextPart
+
+from chat.chat_app import agent, get_db, to_chat_message
+from chat.db.base import Database
 
 router = APIRouter()
 
@@ -26,7 +27,7 @@ async def post_chat(
 ) -> StreamingResponse:
     async def stream_messages():
         """Streams new line delimited JSON `Message`s to the client."""
-        # stream the user prompt so that can be displaced straight away
+        # stream the user prompt so that can be displayed straight away
         yield (
             json.dumps(
                 {
@@ -37,7 +38,6 @@ async def post_chat(
             ).encode("utf-8")
             + b"\n"
         )
-
         # get the chat history so far to pass as context to the agent
         messages = await database.get_messages()
         # run the agent with the user prompt and the chat history
