@@ -13,7 +13,7 @@ from pydantic_ai.models.openai import OpenAIModel
 
 from chat.core.config import settings
 from chat.db.base import Database
-from chat.schemas.chat_messge import ChatMessage
+from chat.schemas.chat_message import ChatMessage
 
 # 'if token-present' means nothing will be sent(and the example will work)
 # if you don't have logfire configured
