@@ -2,11 +2,10 @@ import json
 from datetime import datetime, timezone
 from typing import Annotated
 
-from chat.chat_app import get_db
+from chat.chat_app import agent, get_db, to_chat_message
 from chat.db.base import Database
 from fastapi import APIRouter, Depends, Form
 from fastapi.responses import Response, StreamingResponse
-from chat.chat_app import to_chat_message
 from pydantic_ai.messages import ModelResponse, TextPart
 
 router = APIRouter()
@@ -38,19 +37,18 @@ async def post_chat(
             ).encode("utf-8")
             + b"\n"
         )
-        
-        # get the chat history so far to pass as context to the agent 
-        messages = await database.get_messages()
-        # run the agent with the user prompt and the chat history 
-        async with agent.run_stream(prompt, message_history=messages) as result: 
-            async for text in result.stream(debounce_by=0.01):
-                # text here is a `str` and the frontend wants 
-                # JSON encoded ModelResponse, so we create one 
-                m = ModelResponse(parts=[TextPart(text)], timestamp=result.timestamp())
-                yield json.dumps(to_chat_message(m)).encode('utf-8') + b'\n'
-                
-        # add new messages (e.g. the user prompt and the agent response in this case) to the database 
-        await database.add_messages(result.new_messages_json())
-        
-    return StreamingResponse(stream_messages(), media_type='text/plain')
 
+        # get the chat history so far to pass as context to the agent
+        messages = await database.get_messages()
+        # run the agent with the user prompt and the chat history
+        async with agent.run_stream(prompt, message_history=messages) as result:
+            async for text in result.stream(debounce_by=0.01):
+                # text here is a `str` and the frontend wants
+                # JSON encoded ModelResponse, so we create one
+                m = ModelResponse(parts=[TextPart(text)], timestamp=result.timestamp())
+                yield json.dumps(to_chat_message(m)).encode("utf-8") + b"\n"
+
+        # add new messages (e.g. the user prompt and the agent response in this case) to the database
+        await database.add_messages(result.new_messages_json())
+
+    return StreamingResponse(stream_messages(), media_type="text/plain")

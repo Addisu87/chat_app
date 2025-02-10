@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from pathlib import path
+from pathlib import Path
 
 import logfire
 import uvicorn
@@ -12,7 +12,7 @@ logfire.configure(token=settings.LOGFIRE_WRITE_TOKEN)
 logfire.info("Hello, {place}!", place="World")
 
 app = FastAPI()
-THIS_DIR = path(__file__).parent
+THIS_DIR = Path(__file__).parent
 
 
 @asynccontextmanager
@@ -27,13 +27,13 @@ logfire.instrument_fastapi(app)
 
 @app.get("/")
 async def index() -> FileResponse:
-    return FileResponse((THIS_DIR / "chat_app.html"), media_type="text/html")
+    return FileResponse((THIS_DIR / "chat/chat_app.html"), media_type="text/html")
 
 
 @app.get("/chat_app.ts")
 async def main_ts() -> FileResponse:
     """Get the raw typescript code, it's compiled in the browser, forgive me."""
-    return FileResponse((THIS_DIR / "chat_app.ts"), media_type="text/plain")
+    return FileResponse((THIS_DIR / "chat/chat_app.ts"), media_type="text/plain")
 
 
 if __name__ == "__main__":
