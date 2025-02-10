@@ -1,3 +1,5 @@
+from __future__ import annotations as _annotations
+
 import asyncio
 import sqlite3
 from collections.abc import AsyncIterator
@@ -12,25 +14,27 @@ import logfire
 from pydantic_ai.messages import ModelMessage, ModelMessagesTypeAdapter
 from typing_extensions import LiteralString, ParamSpec
 
+THIS_DIR = Path(__file__).parent
 P = ParamSpec("P")
 R = TypeVar("R")
-THIS_DIR = Path(__file__).parent
 
 
 @dataclass
 class Database:
-    """Redimentary database to store chat messages in SQLite.
+    """Rudimentary database to store chat messages in SQLite.
+
+    The SQLite standard library package is synchronous, so we
     use a thread pool executor to run queries asynchronously.
     """
 
-    conn: sqlite3.Connection
+    con: sqlite3.Connection
     _loop: asyncio.AbstractEventLoop
     _executor: ThreadPoolExecutor
 
     @classmethod
     @asynccontextmanager
     async def connect(
-        cls, file: Path = THIS_DIR / ".chat_app_messages.sqliite"
+        cls, file: Path = THIS_DIR / ".chat_app_messages.sqlite"
     ) -> AsyncIterator[Database]:
         with logfire.span("connect to DB"):
             loop = asyncio.get_event_loop()
@@ -73,10 +77,7 @@ class Database:
         return messages
 
     def _execute(
-        self,
-        sql: LiteralString,
-        *args: Any,
-        commit: bool = False,
+        self, sql: LiteralString, *args: Any, commit: bool = False
     ) -> sqlite3.Cursor:
         cur = self.con.cursor()
         cur.execute(sql, args)

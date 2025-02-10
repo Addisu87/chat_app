@@ -3,16 +3,31 @@ from pathlib import Path
 
 import logfire
 import uvicorn
-from chat.core.config import settings
-from chat.db.base import Database
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-logfire.configure(token=settings.LOGFIRE_WRITE_TOKEN)
+from chat.db.base import Database
+
+# 'if-token-present' means nothing will be sent (and the example will work) if you don't have logfire configured
+logfire.configure(send_to_logfire="if-token-present")
 logfire.info("Hello, {place}!", place="World")
 
 app = FastAPI()
 THIS_DIR = Path(__file__).parent
+
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @asynccontextmanager
@@ -22,7 +37,6 @@ async def lifespan(_app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-logfire.instrument_fastapi(app)
 
 
 @app.get("/")
@@ -37,4 +51,4 @@ async def main_ts() -> FileResponse:
 
 
 if __name__ == "__main__":
-    uvicorn.run("chat.chat_app:app", reload=True, reload_dirs=[str[THIS_DIR]])
+    uvicorn.run("chat.chat_app:app", reload=True, reload_dirs=[str(THIS_DIR)])  # type: ignore
