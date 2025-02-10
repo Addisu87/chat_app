@@ -12,7 +12,14 @@ python3.13 -m venv .venv
 source .venv/bin/activate
 ```
 
-- Install all libraries 
+- Install all libraries
+
 ```bash
 pip install -r requirements.txt
+```
+
+- To run app
+
+```bash
+uvicorn chat.main:app --reload
 ```
